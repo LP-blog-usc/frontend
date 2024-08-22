@@ -113,7 +113,7 @@ body {
 
 /* Logo debajo del título */
 .logo {
-  max-width: 80px;
+  max-width: 100px;
   margin: 10px 0 20px 0;
 }
 
