@@ -4,11 +4,7 @@
     <header class="header">
       <nav class="navbar">
         <div class="logo">
-          <!-- Puedes poner aquí un logo si lo deseas -->
-          <h1>Mi Aplicación</h1>
-        </div>
-        <div class="nav-buttons">
-          <button @click="goToRegister" class="register-button">Registro</button>
+          <h1>Amigos Net</h1>
         </div>
       </nav>
     </header>
@@ -18,7 +14,6 @@
       <div class="login-container">
         <div class="login-box">
           <h2>Login</h2>
-          <!-- Logo debajo del título -->
           <img src="@/assets/logo.png" alt="Logo" class="logo" />
           <form @submit.prevent="login">
             <div class="form-group">
@@ -37,7 +32,7 @@
               <input type="checkbox" id="remember-me" />
               <label for="remember-me">Remember me</label>
             </div>
-            <button type="submit" :disabled="isSubmitting">Login</button>
+            <button type="submit" :disabled="isSubmitting" class="action-button">Login</button>
             <div class="forgot-password">
               <a href="#">Forgot your password?</a>
             </div>
@@ -66,10 +61,6 @@ export default {
       // Lógica para el inicio de sesión
       // ...
       this.isSubmitting = false;
-    },
-    goToRegister() {
-      // Aquí puedes manejar la lógica para llevar al usuario a la página de registro
-      this.$router.push({ name: 'Register' }); // Si estás usando Vue Router
     }
   }
 }
@@ -79,62 +70,42 @@ export default {
 /* Estilos de la barra superior */
 .header {
   background-color: #333;
-  padding: 1rem;
+  padding: 1rem 2rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   color: white;
 }
 
 .navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
 }
 
-.nav-buttons {
-  display: flex;
+.logo {
+  text-align: center;
 }
 
-.register-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.register-button:hover {
-  background-color: #0056b3;
-}
-
-/* Estilos para el fondo y el formulario de login */
-html, body {
-  height: 100%;
+.logo h1 {
+  font-size: 2.5rem; /* Tamaño del h1 */
   margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
-body {
-  display: flex;
-  justify-content: baseline;
-  align-items: baseline;
+  font-weight: bold;
 }
 
 .background-container {
   background-image: url('@/assets/fondo1.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   width: 100%;
-  height: auto;
+  height: 100vh;
   display: flex;
-  max-width: 3000px;
 }
 
 .login-container {
-  height: 100vh;
+  height: 80vh;
   width: 100vw;
   display: flex;
   justify-content: center;
@@ -201,7 +172,7 @@ body {
   margin-right: 10px;
 }
 
-button {
+.action-button {
   width: 100%;
   padding: 10px;
   border: none;
@@ -210,6 +181,13 @@ button {
   color: white;
   font-size: 16px;
   cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.action-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
 }
 
 button:disabled {
@@ -234,5 +212,4 @@ button:disabled {
   color: #007bff;
   font-weight: 600;
 }
-
 </style>
