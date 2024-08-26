@@ -188,8 +188,15 @@ export default {
 .remember-me {
   display: flex;
   align-items: center;
-  font-size: 15px; /* Aumenta ligeramente el tamaño de la fuente */
+  font-size: 25px; /* Aumenta ligeramente el tamaño de la fuente */
   color: #ccc;
+  margin-top: 20px;
+}
+
+.remember-me input {
+  margin-right: 10px; /* Añade espacio entre la casilla y el texto */
+  width: 23px; 
+  height: 23px;
 }
 
 /* Botón de acción (Login) */
@@ -220,9 +227,15 @@ button:disabled {
 }
 
 /* Enlace "Forgot your password?" */
+
+.forgot-password {
+  margin-top: 15px; /* Añade espacio superior */
+  margin-bottom: 15px; /* Añade espacio inferior */
+}
+
 .forgot-password a {
   color: #f39c12;
-  font-size: 15px;
+  font-size: 20px;
   text-decoration: none;
   transition: color 0.3s;
 }
@@ -234,9 +247,11 @@ button:disabled {
 /* Enlace "Sign Up" */
 .signup a {
   color: #f39c12;
+  font-size: 20px;
   font-weight: 700;
   text-decoration: none;
   transition: color 0.3s;
+  margin-top: 15px;
 }
 
 .signup a:hover {
