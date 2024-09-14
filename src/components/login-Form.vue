@@ -160,7 +160,7 @@ export default {
 
 /* Etiquetas de los formularios */
 .form-group label {
-  font-size: 16px; /* Aumenta el tamaño de la fuente */
+  font-size: 16px; 
   color: #ccc;
   display: block;
   margin-bottom: 8px;
@@ -169,13 +169,13 @@ export default {
 /* Entradas del formulario */
 .form-group input {
   width: 100%;
-  padding: 14px; /* Aumenta el padding para mayor espacio */
-  border-radius: 8px; /* Bordes más redondeados */
+  padding: 14px; 
+  border-radius: 8px; 
   border: 1px solid #555;
   background: #2c2c2e;
   color: #fff;
   transition: border-color 0.3s;
-  font-size: 16px; /* Aumenta el tamaño de la fuente */
+  font-size: 16px; 
 }
 
 /* Entrada en foco */
@@ -194,7 +194,7 @@ export default {
 }
 
 .remember-me input {
-  margin-right: 10px; /* Añade espacio entre la casilla y el texto */
+  margin-right: 10px; 
   width: 23px; 
   height: 23px;
 }
