@@ -73,7 +73,7 @@ export default {
 /* Barra superior */
 .header {
   background-color: #1c1c1e;
-  padding: 1.5rem 2.5rem; /* Ajuste de padding para mayor espacio */
+  padding: 1.5rem 2.5rem; 
   display: flex;
   justify-content: center;
   align-items: center;
