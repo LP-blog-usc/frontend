@@ -21,10 +21,10 @@
           </div>
           <form @submit.prevent="login">
             <div class="form-group">
-              <label for="username">
-                <i class="fas fa-user"></i> Username:
+              <label for="email">
+                <i class="fas fa-user"></i> email:
               </label>
-              <input type="text" v-model="username" id="username" required />
+              <input type="text" v-model="email" id="email" required />
             </div>
             <div class="form-group">
               <label for="password">
@@ -43,6 +43,7 @@
             <div class="signup">
               New here? <router-link :to="{ name: 'UserRegister' }">Sign Up</router-link>
             </div>
+            <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
           </form>
         </div>
       </div>
@@ -51,22 +52,80 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
-      username: '',
-      password: '',
-      isSubmitting: false,
+      email: '', // El campo para el email del usuario
+      password: '', // El campo para la contraseña del usuario
+      isSubmitting: false, // Estado para deshabilitar el botón mientras se procesa
+      errorMessage: '', // Para almacenar mensajes de error en caso de fallo
     };
   },
   methods: {
-    login() {
+    // Método que se ejecuta cuando el formulario es enviado
+    async login() {
+      // Validamos que ambos campos estén completos antes de enviar la solicitud
+      if (!this.email || !this.password) {
+        this.errorMessage = 'Please provide both email and password.';
+        return;
+      }
+
       this.isSubmitting = true;
-      // Lógica para autenticar al usuario
-      this.isSubmitting = false;
+      this.errorMessage = '';
+
+      // Datos del formulario (email y contraseña)
+      const loginData = {
+        email: this.email,
+        password: this.password,
+      };
+
+      // Hacemos la solicitud POST a la API de login
+      try {
+        const response = await axios.post('http://localhost:5017/api/Auth/login', loginData);
+        
+        // Verificamos si la respuesta fue exitosa
+        if (response.data.success) {
+          const { roleId, userId } = response.data.data;
+          console.log(`User ID: ${userId}, Role ID: ${roleId}`);
+          
+          // Guardamos los datos del usuario en el localStorage
+          localStorage.setItem('userId', userId);
+          localStorage.setItem('roleId', roleId);
+          
+          // Redirigimos al usuario a la página correspondiente según su rol
+          if (roleId === 2) {
+            this.$router.replace({ name: 'AuthorDashboard' });
+          } else if (roleId === 3) {
+            this.$router.replace({ name: 'ReaderDashboard' });
+          } else if (roleId === 1) {
+            this.$router.replace({ name: 'ModeratorDashboard' });
+          } else {
+            this.errorMessage = 'Unknown role. Please contact support.';
+          }
+        } else {
+          // Si el login falla, mostramos el mensaje de error del backend
+          this.errorMessage = response.data.message || 'Login failed. Please check your credentials.';
+          this.password = '';
+        }
+      } catch (error) {
+        // En caso de error en la solicitud, mostramos un mensaje genérico
+        if (error.response && error.response.status === 400) {
+          this.errorMessage = 'Invalid email or password.';
+          this.password = '';
+        } else {
+          this.errorMessage = 'Error logging in. Please try again later.';
+          this.password = '';
+        }
+        console.error('Login error:', error);
+      } finally {
+        this.isSubmitting = false; // Restauramos el estado para habilitar el botón de login
+        this.password = '';
+      }
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -106,7 +165,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px; /* Agrega un pequeño padding */
+  padding: 20px; 
 }
 
 /* Contenedor del formulario de login */
@@ -256,5 +315,12 @@ button:disabled {
 
 .signup a:hover {
   color: #d35400;
+}
+.error {
+  color: red;
+}
+
+.success {
+  color: green;
 }
 </style>
