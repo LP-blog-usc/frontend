@@ -319,8 +319,4 @@ button:disabled {
 .error {
   color: red;
 }
-
-.success {
-  color: green;
-}
 </style>

@@ -21,16 +21,29 @@
           </div>
           <form @submit.prevent="register">
             <div class="form-group">
-              <label for="username">
-                <i class="fas fa-user"></i> Username:
+              <label for="name">
+                <i class="fas fa-user"></i> Name:
               </label>
-              <input type="text" v-model="username" id="username" required />
+              <input type="text" v-model="name" id="name" required />
+            </div>
+            <div class="form-group">
+              <label for="lastName">
+                <i class="fas fa-user"></i> Last Name:
+              </label>
+              <input type="text" v-model="lastName" id="lastName" required />
             </div>
             <div class="form-group">
               <label for="email">
                 <i class="fas fa-envelope"></i> Email:
               </label>
               <input type="email" v-model="email" id="email" required />
+            </div>
+            <div class="form-group">
+              <label for="telephoneNumber">
+                <i class="fas fa-phone"></i> Telephone Number:
+              </label>
+              <input type="text" v-model="telephoneNumber" id="telephoneNumber" required />
+              <p v-if="errors.telephoneNumber" class="error">{{ errors.telephoneNumber[0] }}</p>
             </div>
             <div class="form-group">
               <label for="password">
@@ -44,47 +57,115 @@
               </label>
               <input type="password" v-model="confirmPassword" id="confirm-password" required />
             </div>
+            <div class="form-group">
+              <label for="role">Role:</label>
+              <select v-model="roleId" id="role" required>
+                <option value="" disabled selected>Select a role</option>
+                <option value="2">Author</option>
+                <option value="3">Reader</option>
+              </select>
+            </div>
+
             <!-- Contenedor para los botones -->
             <div class="form-buttons">
               <button type="submit" :disabled="isSubmitting" class="action-button">Register</button>
               <button type="button" @click="goBack" class="action-button">Back</button>
             </div>
           </form>
+          <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
         </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
-      username: '',
+      name: '',
+      lastName: '',
       email: '',
+      telephoneNumber: '',
       password: '',
       confirmPassword: '',
+      roleId: '', // rolId basado en selección (2 para Autor, 3 para Lector)
       isSubmitting: false,
+      errorMessage: '',
+      errors: {} // Objeto para almacenar los errores de validación
     };
   },
   methods: {
-    register() {
+    async register() {
       this.isSubmitting = true;
-      // Lógica para registrar al usuario
-      console.log("User registered:", this.username, this.email);
-      this.isSubmitting = false;
-      // Redirigir después de registro exitoso
-      this.$router.push({ name: 'LoginForm' }); // Suponiendo que 'Home' es la ruta a la que quieres redirigir
+      this.errorMessage = '';
+      this.errors = {}; // Limpiar errores previos
+
+      // Validar que los campos requeridos están completos
+      if (
+        !this.name ||
+        !this.lastName ||
+        !this.email ||
+        !this.telephoneNumber ||
+        !this.password ||
+        !this.confirmPassword ||
+        !this.roleId
+      ) {
+        this.errorMessage = 'Please fill in all the fields.';
+        this.isSubmitting = false;
+        return;
+      }
+
+      // Validar que las contraseñas coincidan
+      if (this.password !== this.confirmPassword) {
+        this.errorMessage = 'Passwords do not match.';
+        this.isSubmitting = false;
+        return;
+      }
+
+      // Datos del formulario de registro
+      const registerData = {
+        name: this.name,
+        lastName: this.lastName,
+        email: this.email,
+        telephoneNumber: this.telephoneNumber,
+        password: this.password,
+        roleId: this.roleId === 'Author' ? 2 : 3, // Asignar rolId en función de la selección
+      };
+
+      // Hacer solicitud POST a la API de registro
+      try {
+        const response = await axios.post('http://localhost:5017/api/Users', registerData);
+
+        // Verificar respuesta exitosa
+        if (response.data.success) {
+          console.log('User registered:', response.data.data);
+          this.$router.replace({ name: 'LoginForm' }); // Redirigir al login
+        } else {
+          this.errorMessage = response.data.message || 'Error registering user.';
+        }
+      } catch (error) {
+        // En caso de error, mostrar los errores específicos de cada campo
+        if (error.response && error.response.data.errors) {
+          this.errors = error.response.data.errors; // Guardar todos los errores en el objeto 'errors'
+        } else {
+          this.errorMessage = 'Error registering user. Please try again.';
+        }
+        console.error('Register error:', error);
+      } finally {
+        this.isSubmitting = false;
+      }
     },
     goBack() {
-      this.$router.push({ name: 'LoginForm' }); // Esto te redirigirá de vuelta al formulario de login
-    }
-  }
-}
+      this.$router.replace({ name: 'LoginForm' }); // Redirigir al login
+    },
+  },
+};
 </script>
 
+
 <style scoped>
-/* Estilos generales */
 /* Barra superior */
 .header {
   background-color: #1c1c1e;
@@ -191,11 +272,11 @@ export default {
 /* Estilos para los botones */
 .form-buttons {
   display: flex;
-  justify-content: space-between; /* Esto asegura que los botones estén uno al lado del otro */
+  justify-content: space-between;
 }
 
 .action-button {
-  width: 48%; /* Ajusta para que ambos botones tengan el mismo ancho */
+  width: 48%;
   padding: 14px;
   border: none;
   border-radius: 8px;
@@ -216,4 +297,23 @@ button:disabled {
   background-color: #888;
   cursor: not-allowed;
 }
+
+/* Estilo para el selector de Rol */
+.form-group select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background: #2c2c2e;
+  color: #fff;
+  transition: border-color 0.3s;
+  font-size: 16px;
+  appearance: none; 
+}
+
+.form-group select:focus {
+  border-color: #f39c12;
+  outline: none;
+}
+
 </style>
