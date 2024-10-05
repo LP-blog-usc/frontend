@@ -95,11 +95,11 @@ export default {
           localStorage.setItem('roleId', roleId);
           
           // Redirigimos al usuario a la página correspondiente según su rol
-          if (roleId === 2) {
+          if (roleId === 1) {
             this.$router.replace({ name: 'AuthorDashboard' });
           } else if (roleId === 3) {
             this.$router.replace({ name: 'ReaderDashboard' });
-          } else if (roleId === 1) {
+          } else if (roleId === 2) {
             this.$router.replace({ name: 'ModeratorDashboard' });
           } else {
             this.errorMessage = 'Unknown role. Please contact support.';

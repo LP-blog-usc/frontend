@@ -131,7 +131,7 @@ export default {
         email: this.email,
         telephoneNumber: this.telephoneNumber,
         password: this.password,
-        roleId: this.roleId === 'Author' ? 2 : 3, // Asignar rolId en función de la selección
+        roleId: this.roleId === 'Author' ? 1 : 3, 
       };
 
       // Hacer solicitud POST a la API de registro
