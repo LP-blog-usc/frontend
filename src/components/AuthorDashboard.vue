@@ -139,7 +139,7 @@ export default {
     return;
   }
   
-  axios.post('http://localhost:5017/api/GetPostByAuthor', { authorId: parseInt(userId) })
+  axios.get(`http://localhost:5017/api/Posts/author/${parseInt(userId)}`)
     .then(response => {
       if (response.data && response.data.success) {
         this.posts = response.data.data;
