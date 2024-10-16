@@ -107,50 +107,71 @@ export default {
         if (!this.publishDate) this.errors.publishDate = "The publish date is required.";
         return;
       }
+
+      // Validar que el cuerpo del post tenga al menos 50 caracteres
+      if (this.body.length < 20) {
+        this.errors.body = "The body must have at least 50 characters.";
+        return;
+      }
+
       this.previewMode = true;
     },
     submitPost() {
       this.isSubmitting = true;
+      const authorId = parseInt(localStorage.getItem('userId')); // Obtener el ID del autor desde localStorage
+
+      // Verificar que el authorId sea válido antes de enviar la solicitud
+      if (!authorId) {
+        this.errorMessage = "Invalid author ID. Please try again.";
+        this.isSubmitting = false;
+        return;
+      }
+
+      // Formatear la fecha a 'YYYY-MM-DD'
+      const formattedDate = new Date(this.publishDate).toISOString().split('T')[0];
+
       axios.post('http://localhost:5017/api/Posts', {
         title: this.title,
         body: this.body,
-        publishDate: this.publishDate
+        publishDate: formattedDate,
+        authorId: authorId // Incluir el authorId en la solicitud
       })
         .then(() => {
           this.successMessage = "Post created successfully!";
           this.resetForm();
           this.fetchPosts();
         })
-        .catch(() => {
-          this.errorMessage = "Error creating post. Please try again.";
+        .catch((error) => {
+          console.error('Error creating post:', error.response?.data || error);
+          this.errorMessage = error.response?.data?.message || "Error creating post. Please try again.";
         })
         .finally(() => {
           this.isSubmitting = false;
           this.previewMode = false;
         });
     },
-  // Listar posts del autor
-  fetchPosts() {
-  const userId = localStorage.getItem('userId');
-  const roleId = localStorage.getItem('roleId');
+    // Listar posts del autor
+    fetchPosts() {
+      const userId = localStorage.getItem('userId');
+      const roleId = localStorage.getItem('roleId');
   
-  if (roleId !== "1") { // Si no es autor, mostrar un error o redirigir
-    this.errorMessage = "You do not have permission to access this page.";
-    return;
-  }
-  
-  axios.get(`http://localhost:5017/api/Posts/author/${parseInt(userId)}`)
-    .then(response => {
-      if (response.data && response.data.success) {
-        this.posts = response.data.data;
-      } else {
-        this.errorMessage = response.data.message || "No posts found for this author.";
+      if (roleId !== "1") { // Si no es autor, mostrar un error o redirigir
+        this.errorMessage = "You do not have permission to access this page.";
+        return;
       }
-    })
-    .catch(error => {
-      console.error(error);
-      this.errorMessage = "Error fetching posts.";
-    });
+
+      axios.get(`http://localhost:5017/api/Posts/author/${parseInt(userId)}`)
+        .then(response => {
+          if (response.data && response.data.success) {
+            this.posts = response.data.data;
+          } else {
+            this.errorMessage = response.data.message || "No posts found for this author.";
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching posts:', error);
+          this.errorMessage = "Error fetching posts.";
+        });
     },
     // Editar post existente
     editPost(post) {
@@ -196,7 +217,8 @@ export default {
       this.previewMode = false;
     },
     goBack() {
-      this.$router.push({ name: 'AuthorDashboard' });
+      this.resetForm();
+      this.previewMode = false;
     }
   },
   mounted() {
@@ -302,6 +324,7 @@ export default {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  margin-bottom: 10px; /* Separación entre botones */
 }
 
 .action-button:hover {
@@ -371,5 +394,5 @@ button:disabled {
 .success {
   color: green;
 }
-</style>
 
+</style>
