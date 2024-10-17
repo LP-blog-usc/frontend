@@ -54,12 +54,14 @@
     <section class="posts-section">
       <h2>Your Posts</h2>
       <ul>
-        <li v-for="post in posts" :key="post.id">
+        <li v-for="post in posts" :key="post.id" class="post-item">
           <h3>{{ post.title }}</h3>
           <p>{{ post.body }}</p>
           <p><em>Publish Date: {{ post.publishDate }}</em></p>
-          <button @click="editPost(post)" class="action-button">Edit</button>
-          <button @click="confirmDeletePost(post)" class="action-button">Delete</button>
+          <div class="post-buttons">
+            <button @click="editPost(post)" class="action-button">Edit</button>
+            <button @click="confirmDeletePost(post)" class="action-button">Delete</button>
+          </div>
         </li>
       </ul>
     </section>
@@ -246,21 +248,13 @@ export default {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  min-height: 100vh; /* Asegura que el fondo cubra al menos toda la pantalla */
   width: 100%;
-  height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px; 
-  flex-direction: column; /* Para apilar los elementos uno debajo del otro */
-  justify-content: flex-start; /* Comienza desde la parte superior */
-}
-
-.header .logo h1 {
-  font-size: 2.5rem;
-  margin: 0;
-  font-weight: 700;
-  color: #f39c12;
+  align-items: flex-start; /* Asegura que los elementos comiencen desde arriba */
+  padding: 20px;
+  overflow-y: auto; /* Permite desplazamiento cuando el contenido es largo */
 }
 
 /* Sección principal para formularios y listas */
@@ -277,12 +271,19 @@ export default {
   text-align: center;
 }
 
-.post-section h2,
-.posts-section h2 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #f39c12;
-  margin-bottom: 20px;
+/* Separación extra entre los posts para mejor visualización */
+.post-item {
+  background: rgba(40, 40, 50, 0.9);
+  margin-bottom: 30px; /* Aumenta el margen inferior para separar más los posts */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Botones dentro de cada post */
+.post-buttons {
+  display: flex;
+  justify-content: space-between;
 }
 
 /* Estilos del formulario */
@@ -317,6 +318,11 @@ export default {
 }
 
 /* Botones de acción */
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
 .action-button {
   width: 48%;
   padding: 10px;
@@ -328,7 +334,6 @@ export default {
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  margin-bottom: 10px; /* Separación entre botones */
 }
 
 .action-button:hover {
@@ -339,39 +344,6 @@ export default {
 button:disabled {
   background-color: #888;
   cursor: not-allowed;
-}
-
-/* Vista previa del post */
-.preview {
-  border: 1px solid #ccc;
-  padding: 20px;
-  margin-top: 20px;
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.preview h3 {
-  color: #f39c12;
-  margin-bottom: 10px;
-}
-
-/* Listado de posts */
-.posts-section ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.posts-section li {
-  background: rgba(28, 28, 30, 0.85);
-  margin-bottom: 15px;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: left;
-}
-
-.posts-section h3 {
-  font-size: 20px;
-  color: #f39c12;
-  margin: 0 0 10px;
 }
 
 /* Modal de confirmación de eliminación */
@@ -399,4 +371,36 @@ button:disabled {
   color: green;
 }
 
+/* Ajuste para que el fondo no se distorsione */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .post-section,
+  .posts-section {
+    padding: 20px;
+  }
+
+  .action-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .post-buttons {
+    flex-direction: column;
+  }
+
+  .post-buttons .action-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
 </style>
