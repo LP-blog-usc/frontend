@@ -61,8 +61,8 @@
               <label for="role">Role:</label>
               <select v-model="roleId" id="role" required>
                 <option value="" disabled selected>Select a role</option>
-                <option value="2">Author</option>
-                <option value="3">Reader</option>
+                <option value="1">Author</option> <!-- Rol de autor -->
+                <option value="3">Reader</option> <!-- Rol de lector -->
               </select>
             </div>
 
@@ -117,6 +117,11 @@ export default {
         return;
       }
 
+      if (this.password.length < 6) {
+        this.errorMessage = 'Password must be at least 6 characters long.';
+        this.isSubmitting = false;
+        return;
+      }
       // Validar que las contraseñas coincidan
       if (this.password !== this.confirmPassword) {
         this.errorMessage = 'Passwords do not match.';
@@ -131,7 +136,7 @@ export default {
         email: this.email,
         telephoneNumber: this.telephoneNumber,
         password: this.password,
-        roleId: this.roleId === 'Author' ? 1 : 3, 
+        roleId: parseInt(this.roleId)
       };
 
       // Hacer solicitud POST a la API de registro

@@ -108,9 +108,9 @@ export default {
         return;
       }
 
-      // Validar que el cuerpo del post tenga al menos 50 caracteres
+      // Validar que el cuerpo del post tenga al menos 20 caracteres
       if (this.body.length < 20) {
-        this.errors.body = "The body must have at least 50 characters.";
+        this.errors.body = "The body must have at least 20 characters.";
         return;
       }
 
@@ -184,6 +184,8 @@ export default {
     confirmDeletePost(post) {
       this.showDeleteModal = true;
       this.postToDelete = post;
+
+      console.log(post)
     },
     deletePost() {
       axios.delete(`http://localhost:5017/api/Posts/${this.postToDelete.id}`)
