@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="background-container">
     <!-- Barra Superior -->
     <header class="header">
       <nav class="navbar">
         <div class="logo">
-          <h1>Amigos Net - Panel de Autor</h1>
+          <h1>Amigos Net - author panel</h1>
         </div>
       </nav>
     </header>
@@ -252,6 +252,8 @@ export default {
   justify-content: center;
   align-items: center;
   padding: 20px; 
+  flex-direction: column; /* Para apilar los elementos uno debajo del otro */
+  justify-content: flex-start; /* Comienza desde la parte superior */
 }
 
 .header .logo h1 {
