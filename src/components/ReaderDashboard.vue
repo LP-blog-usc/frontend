@@ -4,7 +4,10 @@
     <header class="header">
       <h1>Amigos Net - Reader Dashboard</h1>
     </header>
-    
+    <head>
+       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    </head>
+    <i class="fa fa-heart"></i>
     <div class="posts-section">
       <h2>Posts</h2>
       <ul>
@@ -13,7 +16,6 @@
           <p class="post-body">{{ post.body }}</p>
           <p><em>Author: {{ post.authorName }}</em></p>
 
-          <!-- Botón para alternar el like en forma de corazón -->
           <button @click="toggleLike(post)" class="like-button">
             <i :class="post.liked ? 'fa fa-heart liked' : 'fa fa-heart'"></i>
           </button>
