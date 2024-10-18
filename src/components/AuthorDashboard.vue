@@ -64,8 +64,20 @@
     </li>
   </ul>
 </section>
-    </div>
+<!-- Modal para Confirmación de Eliminación -->
+<div v-if="showDeleteModal" class="modal">
+  <p>Are you sure you want to delete this post?</p>
+  <div class="modal-buttons">
+    <button @click="deletePost" class="action-button">Yes, Delete</button>
+    <button @click="cancelDelete" class="action-button">Cancel</button>
   </div>
+</div>
+
+    <!-- Mensajes de Éxito/Error -->
+    <p v-if="successMessage" class="success">{{ successMessage }}</p>
+    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+  </div>
+</div>
 </template>
 
 <script>
@@ -77,7 +89,7 @@ export default {
       // Campos del post
       title: '',
       body: '',
-      publishDate: '',
+      publishDate: new Date().toISOString().substr(0, 10),
       errors: {},
       isSubmitting: false,
       previewMode: false,
@@ -173,29 +185,54 @@ export default {
     },
     // Confirmar y eliminar post
     confirmDeletePost(post) {
-      this.showDeleteModal = true;
-      this.postToDelete = post;
+  if (!post || !post.id) {
+    this.errorMessage = "Post ID is missing. Cannot delete the post.";
+    setTimeout(() => {
+      this.errorMessage = ""; // Limpiar el mensaje después de 5 segundos
+    }, 5000);
+    return;
+  }
 
-      console.log("Delete post"+post)
-    },
-    deletePost() {
-      axios.delete(`http://localhost:5017/api/Posts/${this.postToDelete.id}`)
-        .then(() => {
-          this.successMessage = "Post deleted successfully!";
-          this.fetchPosts();
-        })
-        .catch(() => {
-          this.errorMessage = "Error deleting post. Please try again.";
-        })
-        .finally(() => {
-          this.showDeleteModal = false;
-          this.postToDelete = null;
-        });
-    },
-    cancelDelete() {
+  console.log("Post seleccionado para eliminar:", post); // Debug
+
+  this.showDeleteModal = true;
+  this.postToDelete = post;
+},
+
+deletePost() {
+  if (!this.postToDelete || !this.postToDelete.id) {
+    this.errorMessage = "Post ID is missing. Cannot delete the post.";
+    setTimeout(() => {
+      this.errorMessage = ""; // Limpia el mensaje de error después de 5 segundos
+    }, 5000);
+    return;
+  }
+
+  axios.delete(`http://localhost:5017/api/Posts/${this.postToDelete.id}`)
+    .then(() => {
+      this.successMessage = "Post deleted successfully!";
+      setTimeout(() => {
+        this.successMessage = ""; // Limpia el mensaje de éxito después de 5 segundos
+      }, 5000);
+      this.fetchPosts(); // Actualiza los posts
+    })
+    .catch(() => {
+      this.errorMessage = "Error deleting post. Please try again.";
+      setTimeout(() => {
+        this.errorMessage = ""; // Limpia el mensaje de error después de 5 segundos
+      }, 5000);
+    })
+    .finally(() => {
       this.showDeleteModal = false;
       this.postToDelete = null;
-    },
+    });
+},
+
+cancelDelete() {
+  this.showDeleteModal = false;
+  this.postToDelete = null; // Restablecer la selección de post a null
+},
+
     clearErrors() {
       this.errors = {};
       this.successMessage = '';
@@ -412,6 +449,98 @@ button:disabled {
   font-size: 20px;
   color: #f39c12;
   margin: 0 0 10px;
+}
+
+/* Estilo del modal */
+.modal {
+  background: rgba(28, 28, 30, 0.95);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+  width: 400px; /* Ajustamos el ancho */
+  max-width: 90%; /* Permite que se ajuste a pantallas más pequeñas */
+  margin: 0 auto; /* Asegura que esté centrado horizontalmente */
+  text-align: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Lo centra en la pantalla */
+  z-index: 1000; /* Lo mantiene al frente de todo */
+}
+
+/* Estilo para los botones dentro del modal */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-buttons .action-button {
+  width: 48%; /* Asegura que ambos botones ocupen el mismo espacio */
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f39c12;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.modal-buttons .action-button:hover {
+  background-color: #d35400;
+  transform: scale(1.05);
+}
+
+
+.modal p {
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+/* Estilo para los mensajes de error y éxito (centrado) */
+.success, .error {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  border-radius: 8px;
+  font-size: 16px; /* Tamaño de fuente consistente */
+  text-align: center;
+  width: 300px; /* Ancho fijo, pero adaptable */
+  max-width: 90%; /* Para pantallas pequeñas */
+  z-index: 1000; /* Colocado por encima del contenido */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5); /* Sombra para darle efecto flotante */
+}
+
+/* Fondo blanco y color rojo para el error */
+.error {
+  background-color: white;
+  color: red;
+  border: 2px solid red;
+}
+
+/* Fondo blanco y color verde para el éxito */
+.success {
+  background-color: white;
+  color: green;
+  border: 2px solid green;
+}
+/* Animación para mostrar y luego ocultar los mensajes */
+@keyframes fade-in-out {
+  0% {
+    opacity: 0; /* Inicialmente invisible */
+  }
+  5% {
+    opacity: 1; /* Visible después del 10% del tiempo */
+  }
+  10% {
+    opacity: 1; /* Mantener visible hasta el 90% del tiempo */
+  }
+  12% {
+    opacity: 0; /* Finalmente invisible al 100% */
+  }
 }
 
 </style>
