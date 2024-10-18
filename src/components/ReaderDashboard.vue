@@ -46,47 +46,73 @@ export default {
               liked: false // Añadimos una propiedad para manejar los likes
             }));
           } else {
-            console.error('No se encontraron posts.');
+            console.error('No posts found.');
           }
         })
         .catch(error => {
-          console.error('Error al cargar los posts:', error);
+          console.error('Error fetching posts:', error);
         });
     },
     // Función para alternar el like de un post
     toggleLike(post) {
       if (post.liked) {
-        this.removeLike(post);
+        this.removeLike(post); // Si ya está "liked", lo eliminamos
       } else {
-        this.addLike(post);
+        this.addLike(post); // Si no está "liked", lo añadimos
       }
     },
     // Añadir un like al post
     addLike(post) {
+      const userId = localStorage.getItem('userId'); // Obtener el userId del usuario autenticado
+      if (!userId) {
+        console.error("User not authenticated");
+        return;
+      }
+
+      // Verificar si el post ya tiene un "like" antes de intentar añadirlo
+      if (post.liked) {
+        console.log("This post is already liked by this user.");
+        return; // Si ya está marcado como "liked", no se envía la solicitud
+      }
+
       axios.post('http://localhost:5017/api/Likes', {
         postId: post.id,
-        userId: 2 // Aquí pondrías el ID del usuario autenticado
+        userId: userId // Usar el userId del localStorage
       })
       .then(() => {
-        post.liked = true;
+        post.liked = true; // Marcar el post como "liked"
       })
       .catch(error => {
-        console.error('Error al dar like:', error);
+        console.error('Error liking the post:', error);
       });
     },
     // Quitar un like al post
     removeLike(post) {
-      axios.delete('http://localhost:5017/api/Likes', {
+      const userId = localStorage.getItem('userId'); // Obtener el userId del usuario autenticado
+      if (!userId) {
+        console.error("User not authenticated");
+        return;
+      }
+
+      // Verificar si el post tiene un "like" antes de intentar eliminarlo
+      if (!post.liked) {
+        console.log("This post is not liked by this user.");
+        return; // Si no está marcado como "liked", no se envía la solicitud
+      }
+
+      axios({
+        method: 'delete',
+        url: 'http://localhost:5017/api/Likes',
         data: {
           postId: post.id,
-          userId: 2 // Aquí pondrías el ID del usuario autenticado
+          userId: userId // Usar el userId del localStorage
         }
       })
       .then(() => {
-        post.liked = false;
+        post.liked = false; // Desmarcar el post como "liked"
       })
       .catch(error => {
-        console.error('Error al quitar el like:', error);
+        console.error('Error removing the like:', error);
       });
     },
   },
