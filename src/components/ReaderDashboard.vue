@@ -1,13 +1,20 @@
 <template>
   <div class="background-container">
+    <!-- Título de la página -->
+    <header class="header">
+      <h1>Amigos Net - Reader Dashboard</h1>
+    </header>
+    
     <div class="posts-section">
       <h2>Posts</h2>
       <ul>
-        <li v-for="post in posts" :key="post.id">
-          <h3>{{ post.title }}</h3>
-          <p>{{ post.body }}</p>
-          <!-- Botón de Like -->
-          <button @click="toggleLike(post)">
+        <li v-for="post in posts" :key="post.id" class="post-item">
+          <h3 class="post-title">{{ post.title }}</h3>
+          <p class="post-body">{{ post.body }}</p>
+          <p><em>Author: {{ post.authorName }}</em></p>
+
+          <!-- Botón para alternar el like en forma de corazón -->
+          <button @click="toggleLike(post)" class="like-button">
             <i :class="post.liked ? 'fa fa-heart liked' : 'fa fa-heart'"></i>
           </button>
         </li>
@@ -30,10 +37,15 @@ export default {
     fetchPosts() {
       axios.get('http://localhost:5017/api/Posts')
         .then(response => {
-          this.posts = response.data.map(post => ({
-            ...post,
-            liked: false // Añadimos una propiedad para manejar los likes
-          }));
+          // Asegurarse de acceder correctamente a los datos en response.data
+          if (response.data && response.data.success) {
+            this.posts = response.data.data.map(post => ({
+              ...post,
+              liked: false // Añadimos una propiedad para manejar los likes
+            }));
+          } else {
+            console.error('No se encontraron posts.');
+          }
         })
         .catch(error => {
           console.error('Error al cargar los posts:', error);
@@ -83,49 +95,109 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos del botón de Like */
-.fa-heart {
-  font-size: 24px;
-  color: #888;
-  cursor: pointer;
-  transition: color 0.3s;
+/* Barra superior */
+.header {
+  background-color: #1c1c1e;
+  padding: 1.5rem;
+  text-align: center;
+  color: #fff;
+  z-index: 2;
+  position: relative;
 }
 
-.fa-heart.liked {
-  color: red;
+.header h1 {
+  font-size: 2.5rem;
+  color: #f39c12;
+  margin: 0;
 }
 
-/* Resto de los estilos */
+/* Contenedor de fondo */
 .background-container {
   background-image: url('@/assets/fondo1.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   padding: 20px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1;
 }
 
+/* Sección de posts */
 .posts-section {
   background: rgba(28, 28, 30, 0.95);
-  margin: 20px auto;
   padding: 40px;
-  border-radius: 10px;
+  border-radius: 15px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-  width: 100%;
-  max-width: 600px;
-  color: #fff;
-  text-align: center;
+  width: 50%;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+  z-index: 10;
+  position: relative;
 }
 
-h2 {
+/* Cada post en la lista */
+.post-item {
+  background: rgba(28, 28, 30, 0.85);
+  margin-bottom: 30px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 20;
+}
+
+/* Estilo del cuerpo del post */
+.post-body {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: #fff;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 25;
+}
+
+/* Estilo del título del post */
+h3.post-title {
+  color: #f39c12 !important; /* Forzamos el color naranja */
+  z-index: 20;
+  
+}
+
+/* Estilo del botón de like */
+.like-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #888;
+  transition: color 0.3s ease;
+}
+
+.like-button .fa-heart {
   font-size: 24px;
-  font-weight: 700;
+  color: #888;
+}
+
+.like-button .fa-heart.liked {
+  color: red; /* Corazón rojo cuando está likeado */
+}
+
+.post-item p {
+  position: relative;
+  z-index: 20;
+  color: #fff;
+}
+
+/* Estilo del título de la sección de posts */
+h2 {
+  z-index: 20;
+  position: relative;
   color: #f39c12;
-  margin-bottom: 20px;
 }
 </style>

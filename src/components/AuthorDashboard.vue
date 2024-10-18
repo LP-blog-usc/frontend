@@ -22,12 +22,12 @@
             <textarea id="body" v-model="body" rows="6" required></textarea>
             <p v-if="errors.body" class="error">{{ errors.body }}</p>
           </div>
-
           <div class="form-group">
             <label for="publishDate">Publish Date:</label>
-            <input type="date" id="publishDate" v-model="publishDate" required />
+            <input type="date" id="publishDate" v-model="publishDate" class="date-picker" required />
             <p v-if="errors.publishDate" class="error">{{ errors.publishDate }}</p>
           </div>
+
 
           <!-- Botones de acción -->
           <div class="form-buttons">
@@ -37,16 +37,19 @@
         </form>
 
         <!-- Vista previa del post -->
-        <div v-if="previewMode" class="preview">
-          <h3>Post Preview</h3>
-          <p><strong>Title:</strong> {{ title }}</p>
-          <p><strong>Body:</strong> {{ body }}</p>
-          <p><strong>Publish Date:</strong> {{ publishDate }}</p>
-          <div class="form-buttons">
-            <button @click="submitPost" class="action-button">Submit Post</button>
-            <button @click="cancelPreview" class="action-button">Cancel</button>
-          </div>
-        </div>
+<div v-if="previewMode" class="preview">
+  <h3>Post Preview</h3>
+  <p><strong>Title:</strong> {{ title }}</p>
+  <p><strong>Body:</strong> {{ body }}</p>
+  <p><strong>Publish Date:</strong> {{ publishDate }}</p>
+  <div class="form-buttons">
+    <!-- Mostrar "Edit Post" o "Submit Post" según el estado de edición -->
+    <button @click="submitPost" class="action-button">
+      {{ editingPostId ? 'Edit Post' : 'Submit Post' }}
+    </button>
+    <button @click="cancelPreview" class="action-button">Cancel</button>
+  </div>
+</div>
       </section>
 
       <!-- Sección de posts -->
@@ -85,21 +88,21 @@ import axios from 'axios';
 
 export default {
   data() {
-    return {
-      // Campos del post
-      title: '',
-      body: '',
-      publishDate: new Date().toISOString().substr(0, 10),
-      errors: {},
-      isSubmitting: false,
-      previewMode: false,
-      successMessage: '',
-      errorMessage: '',
-      posts: [], // Lista de posts del autor
-      showDeleteModal: false,
-      postToDelete: null,
-    };
-  },
+  return {
+    title: '',
+    body: '',
+    publishDate: '',
+    errors: {},
+    isSubmitting: false,
+    previewMode: false,
+    successMessage: '',
+    errorMessage: '',
+    posts: [], 
+    showDeleteModal: false,
+    postToDelete: null,
+    editingPostId: null, // ID del post que se está editando
+  };
+},
   methods: {
     // Crear y previsualizar el post
     createPost() {
@@ -119,120 +122,152 @@ export default {
 
       this.previewMode = true;
     },
-    submitPost() {
-      this.isSubmitting = true;
-      const authorId = parseInt(localStorage.getItem('userId')); // Obtener el ID del autor desde localStorage
+  submitPost() {
+  this.isSubmitting = true;
+  const authorId = parseInt(localStorage.getItem('userId')); // Obtener el ID del autor desde localStorage
 
-      // Verificar que el authorId sea válido antes de enviar la solicitud
-      if (!authorId) {
-        this.errorMessage = "Invalid author ID. Please try again.";
-        this.isSubmitting = false;
-        return;
-      }
+  // Verificar que el authorId sea válido antes de enviar la solicitud
+  if (!authorId) {
+    this.errorMessage = "Invalid author ID. Please try again.";
+    this.isSubmitting = false;
+    setTimeout(() => {
+        this.errorMessage = '';
+      }, 2000);
+    return;
+  }
 
-      // Formatear la fecha a 'YYYY-MM-DD'
-      const formattedDate = new Date(this.publishDate).toISOString().split('T')[0];
+  // Formatear la fecha a 'YYYY-MM-DD'
+  const formattedDate = new Date(this.publishDate).toISOString().split('T')[0];
 
-      axios.post('http://localhost:5017/api/Posts', {
-        title: this.title,
-        body: this.body,
-        publishDate: formattedDate,
-        authorId: authorId // Incluir el authorId en la solicitud
-      })
-        .then(() => {
-          this.successMessage = "Post created successfully!";
-          this.resetForm();
-          this.fetchPosts();
-        })
-        .catch((error) => {
-          console.error('Error creating post:', error.response?.data || error);
-          this.errorMessage = error.response?.data?.message || "Error creating post. Please try again.";
-        })
-        .finally(() => {
-          this.isSubmitting = false;
-          this.previewMode = false;
-        });
-    },
+  // Si hay un post en edición, actualizamos el post
+  if (this.editingPostId) {
+    axios.put(`http://localhost:5017/api/Posts/${this.editingPostId}`, {
+      title: this.title,
+      body: this.body,
+      publishDate: formattedDate,
+      authorId: authorId
+    })
+    .then(() => {
+      this.successMessage = "Post updated successfully!";
+      this.resetForm();
+      this.fetchPosts();
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 2000);
+    })
+    .catch((error) => {
+      console.error('Error updating post:', error.response?.data || error);
+      this.errorMessage = error.response?.data?.message || "Error updating post. Please try again.";
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 2000);
+    })
+    .finally(() => {
+      this.isSubmitting = false;
+      this.previewMode = false;
+      this.editingPostId = null; // Restablecer el estado de edición
+    });
+  } else {
+    // Si no hay post en edición, creamos uno nuevo
+    axios.post('http://localhost:5017/api/Posts', {
+      title: this.title,
+      body: this.body,
+      publishDate: formattedDate,
+      authorId: authorId
+    })
+    .then(() => {
+      this.successMessage = "Post created successfully!";
+      this.resetForm();
+      this.fetchPosts();
+      setTimeout(() => {
+        this.successMessage = '';
+      }, 2000);
+    })
+    .catch((error) => {
+      console.error('Error creating post:', error.response?.data || error);
+      this.errorMessage = error.response?.data?.message || "Error creating post. Please try again.";
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 2000);
+    })
+    .finally(() => {
+      this.isSubmitting = false;
+      this.previewMode = false;
+    });
+  }
+},
+
     // Listar posts del autor
     fetchPosts() {
-      const userId = localStorage.getItem('userId');
-      const roleId = localStorage.getItem('roleId');
-  
-      if (roleId !== "1") { // Si no es autor, mostrar un error o redirigir
-        this.errorMessage = "You do not have permission to access this page.";
-        return;
-      }
+  const userId = localStorage.getItem('userId');
+  const roleId = localStorage.getItem('roleId');
 
-      axios.get(`http://localhost:5017/api/Posts/author/${parseInt(userId)}`)
-        .then(response => {
-          if (response.data && response.data.success) {
-            this.posts = response.data.data;
-          } else {
-            this.errorMessage = response.data.message || "No posts found for this author.";
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching posts:', error);
-          this.errorMessage = "Error fetching posts.";
-        });
-    },
+  if (roleId !== "1") { // Si no es autor, mostrar un error o redirigir
+    this.errorMessage = "You do not have permission to access this page.";
+    return;
+  }
+
+  axios.get(`http://localhost:5017/api/Posts/author/${parseInt(userId)}`)
+    .then(response => {
+      if (response.data && response.data.success) {
+        this.posts = response.data.data;
+
+        // Verificar si la lista de posts está vacía y mostrar un mensaje adecuado
+        if (this.posts.length === 0) {
+          this.errorMessage = "You have not created any posts yet.";
+        } else {
+          this.errorMessage = ''; // Limpiar cualquier mensaje de error previo si hay posts
+        }
+      } else {
+        this.errorMessage = response.data.message || "No posts found for this author.";
+        this.posts = [];
+      }
+    })
+    .catch(error => {
+      console.error('You have not created any posts yet:', error);
+      this.errorMessage = "You have not created any posts yet";
+      setTimeout(() => {
+        this.errorMessage = '';
+      }, 2000);
+    });
+},
     // Editar post existente
     editPost(post) {
       this.title = post.title;
       this.body = post.body;
       this.publishDate = post.publishDate;
       this.previewMode = true;
+      this.editingPostId = post.id;
     },
     // Confirmar y eliminar post
     confirmDeletePost(post) {
-  if (!post || !post.id) {
-    this.errorMessage = "Post ID is missing. Cannot delete the post.";
-    setTimeout(() => {
-      this.errorMessage = ""; // Limpiar el mensaje después de 5 segundos
-    }, 5000);
-    return;
-  }
-
-  console.log("Post seleccionado para eliminar:", post); // Debug
-
-  this.showDeleteModal = true;
-  this.postToDelete = post;
-},
-
-deletePost() {
-  if (!this.postToDelete || !this.postToDelete.id) {
-    this.errorMessage = "Post ID is missing. Cannot delete the post.";
-    setTimeout(() => {
-      this.errorMessage = ""; // Limpia el mensaje de error después de 5 segundos
-    }, 5000);
-    return;
-  }
-
-  axios.delete(`http://localhost:5017/api/Posts/${this.postToDelete.id}`)
-    .then(() => {
-      this.successMessage = "Post deleted successfully!";
-      setTimeout(() => {
-        this.successMessage = ""; // Limpia el mensaje de éxito después de 5 segundos
-      }, 5000);
-      this.fetchPosts(); // Actualiza los posts
-    })
-    .catch(() => {
-      this.errorMessage = "Error deleting post. Please try again.";
-      setTimeout(() => {
-        this.errorMessage = ""; // Limpia el mensaje de error después de 5 segundos
-      }, 5000);
-    })
-    .finally(() => {
+      this.showDeleteModal = true;
+      this.postToDelete = post;
+    },
+    deletePost() {
+      axios.delete(`http://localhost:5017/api/Posts/${this.postToDelete.id}`)
+        .then(() => {
+          this.successMessage = "Post deleted successfully!";
+          this.fetchPosts();
+          setTimeout(() => {
+          this.successMessage= '';
+          }, 2000);
+        })
+        .catch(() => {
+          this.errorMessage = "Error deleting post. Please try again.";
+          setTimeout(() => {
+          this.errorMessage = '';
+           }, 2000);
+        })
+        .finally(() => {
+          this.showDeleteModal = false;
+          this.postToDelete = null;
+        });
+    },
+    cancelDelete() {
       this.showDeleteModal = false;
       this.postToDelete = null;
-    });
-},
-
-cancelDelete() {
-  this.showDeleteModal = false;
-  this.postToDelete = null; // Restablecer la selección de post a null
-},
-
+    },
     clearErrors() {
       this.errors = {};
       this.successMessage = '';
@@ -315,6 +350,20 @@ cancelDelete() {
   position: relative; /* Asegura que esta sección esté posicionada por encima del fondo */
 }
 
+/* Estilizar el campo de fecha */
+.date-picker {
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #f39c12; /* Borde de color */
+  background-color: #2c2c2e; /* Fondo oscuro */
+  color: #fff; /* Texto blanco */
+}
+
+/* Para cambiar el color del icono del selector de fecha en navegadores que lo permiten */
+.date-picker::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Cambia el color del icono */
+}
 /* Sección de posts */
 .posts-section {
   background: rgba(28, 28, 30, 0.95);
