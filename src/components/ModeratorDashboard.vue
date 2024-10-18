@@ -182,7 +182,7 @@ export default {
       this.postToDelete = post;
     },
     deletePost() {
-      axios.delete(`http://localhost:5017/api/Posts/${this.postToDelete.id}`)
+      axios.delete('http://localhost:5017/api/Posts/${this.id}')
         .then(() => {
           this.successMessage = "Post deleted successfully!";
           this.fetchPosts();
@@ -224,7 +224,7 @@ export default {
 </script>
 
 <style scoped>
-/* /* Barra superior */
+/* Barra superior */
 .header {
   background-color: #1c1c1e;
   padding: 1.5rem;

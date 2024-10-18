@@ -576,20 +576,4 @@ button:disabled {
   color: green;
   border: 2px solid green;
 }
-/* Animación para mostrar y luego ocultar los mensajes */
-@keyframes fade-in-out {
-  0% {
-    opacity: 0; /* Inicialmente invisible */
-  }
-  5% {
-    opacity: 1; /* Visible después del 10% del tiempo */
-  }
-  10% {
-    opacity: 1; /* Mantener visible hasta el 90% del tiempo */
-  }
-  12% {
-    opacity: 0; /* Finalmente invisible al 100% */
-  }
-}
-
 </style>
