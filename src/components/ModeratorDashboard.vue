@@ -1,15 +1,17 @@
 <template>
   <div class="background-container">
+    <!-- Logo de Log Out -->
+    <img 
+      src="@/assets/out.png" 
+      alt="Log Out" 
+      class="logout-logo" 
+      @click="logout" 
+    />
     <!-- Barra Superior -->
     <header class="header">
       <h1>Amigos Net - Moderator Dashboard</h1>
     </header>
-    <img 
-        src="@/assets/out.png" 
-        alt="Log Out" 
-        class="logout-logo" 
-        @click="logout" 
-      />
+
     <!-- Contenedor principal -->
     <div class="main-content">
       <!-- Sección para crear nuevo post -->
@@ -27,6 +29,7 @@
             <textarea id="body" v-model="body" rows="6" required></textarea>
             <p v-if="errors.body" class="error">{{ errors.body }}</p>
           </div>
+
           <div class="form-group">
             <label for="publishDate">Publish Date:</label>
             <input type="date" id="publishDate" v-model="publishDate" class="date-picker" required />
@@ -45,7 +48,7 @@
           <h3>Post Preview</h3>
           <p><strong>Title:</strong> {{ title }}</p>
           <p><strong>Body:</strong> {{ body }}</p>
-          <p><strong>Publish Date:</strong> {{ publishDate }}</p>
+          <p><strong>Publish Date:</strong> {{ publishDate ? new Date(publishDate).toLocaleDateString() : 'No date provided' }}</p>
           <div class="form-buttons">
             <button @click="submitPost" class="action-button">Submit Post</button>
             <button @click="cancelPreview" class="action-button">Cancel</button>
@@ -60,8 +63,19 @@
           <li v-for="post in posts" :key="post.id" class="post-item">
             <h3>{{ post.title }}</h3>
             <p class="post-body">{{ post.body }}</p>
-            <p><em>Publish Date: {{ post.publishDate }}</em></p>
+            <p><em>Publish Date: {{ formatDate(post.publishDate) }}</em></p>
             <p><em>Author: {{ post.authorName }}</em></p>
+            <p><em>Status: {{ post.status }}</em></p>
+            <p><strong>Likes: {{ post.likes.length }}</strong></p>
+
+            <!-- Mostrar comentarios -->
+            <p><strong>Comments:</strong></p>
+            <ul>
+              <li v-for="comment in post.comments" :key="comment.id">
+                <p>{{ comment.content }} - {{ formatDate(comment.createdAt) }}</p>
+              </li>
+            </ul>
+
             <div class="post-buttons">
               <button @click="editPost(post)" class="action-button">Edit</button>
               <button @click="confirmDeletePost(post)" class="action-button">Delete</button>
@@ -85,14 +99,12 @@
     </div>
   </div>
 </template>
-
 <script>
 import axios from 'axios';
 
 export default {
   data() {
     return {
-      // Campos del post
       title: '',
       body: '',
       publishDate: '',
@@ -130,39 +142,39 @@ export default {
 
       this.previewMode = true;
     },
-      submitPost() {
-        this.isSubmitting = true;
-        const moderatorId = localStorage.getItem('userId'); // Obtener el ID del moderador desde localStorage
+    submitPost() {
+      this.isSubmitting = true;
+      const moderatorId = localStorage.getItem('userId'); // Obtener el ID del moderador desde localStorage
 
-        // Verificar que el moderatorId sea válido antes de enviar la solicitud
-        if (!moderatorId) {
-          this.errorMessage = "Invalid moderator ID. Please try again.";
-          this.isSubmitting = false;
-          return;
-        }
-        // Formatear la fecha a 'YYYY-MM-DD'
-        const formattedDate = new Date(this.publishDate).toISOString().split('T')[0];
+      // Verificar que el moderatorId sea válido antes de enviar la solicitud
+      if (!moderatorId) {
+        this.errorMessage = "Invalid moderator ID. Please try again.";
+        this.isSubmitting = false;
+        return;
+      }
+      // Formatear la fecha a 'YYYY-MM-DD'
+      const formattedDate = new Date(this.publishDate).toISOString().split('T')[0];
 
-        axios.post('http://localhost:5017/api/Posts', {
-          title: this.title,
-          body: this.body,
-          publishDate: formattedDate,
-          authorId: moderatorId // Incluir el moderatorId en la solicitud
+      axios.post('http://localhost:5017/api/Posts', {
+        title: this.title,
+        body: this.body,
+        publishDate: formattedDate,
+        authorId: moderatorId // Incluir el moderatorId en la solicitud
+      })
+        .then(() => {
+          this.successMessage = "Post created successfully!";
+          this.resetForm();
+          this.fetchPosts();
         })
-          .then(() => {
-            this.successMessage = "Post created successfully!";
-            this.resetForm();
-            this.fetchPosts();
-          })
-          .catch((error) => {
-            console.error('Error creating post:', error.response?.data || error);
-            this.errorMessage = error.response?.data?.message || "Error creating post. Please try again.";
-          })
-          .finally(() => {
-            this.isSubmitting = false;
-            this.previewMode = false;
-          });
-          },
+        .catch((error) => {
+          console.error('Error creating post:', error.response?.data || error);
+          this.errorMessage = error.response?.data?.message || "Error creating post. Please try again.";
+        })
+        .finally(() => {
+          this.isSubmitting = false;
+          this.previewMode = false;
+        });
+    },
     // Listar todos los posts
     fetchPosts() {
       axios.get('http://localhost:5017/api/Posts')
@@ -192,7 +204,7 @@ export default {
       this.postToDelete = post;
     },
     deletePost() {
-      axios.delete('http://localhost:5017/api/Posts/${this.id}')
+      axios.delete(`http://localhost:5017/api/Posts/${this.postToDelete.id}`)
         .then(() => {
           this.successMessage = "Post deleted successfully!";
           this.fetchPosts();
@@ -225,6 +237,12 @@ export default {
     goBack() {
       this.resetForm();
       this.previewMode = false;
+    },
+    // Función para formatear las fechas en el frontend
+    formatDate(dateString) {
+      if (!dateString) return 'No date provided';
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString(undefined, options);
     }
   },
   mounted() {
@@ -232,7 +250,6 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 /* Estilo del logo de Log Out */
 .logout-logo {
@@ -243,6 +260,7 @@ export default {
   top: 40px; 
   left: 550px;
 }
+
 /* Barra superior */
 .header {
   background-color: #1c1c1e;
