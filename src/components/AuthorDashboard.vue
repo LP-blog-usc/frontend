@@ -1,15 +1,15 @@
 <template>
   <div class="background-container">
-    <!-- Barra Superior -->
-    <header class="header">
-      <h1>Amigos Net - Author Panel</h1>
-    </header>
     <img 
         src="@/assets/out.png" 
         alt="Log Out" 
         class="logout-logo" 
         @click="logout" 
       />
+    <!-- Barra Superior -->
+    <header class="header">
+      <h1>Amigos Net - Author Panel</h1>
+    </header>
     <!-- Contenedor principal que contiene formulario y posts -->
     <div class="main-content">
       <!-- Sección para crear nuevo post -->
@@ -33,7 +33,6 @@
             <p v-if="errors.publishDate" class="error">{{ errors.publishDate }}</p>
           </div>
 
-
           <!-- Botones de acción -->
           <div class="form-buttons">
             <button type="submit" :disabled="isSubmitting" class="action-button">Preview</button>
@@ -42,50 +41,66 @@
         </form>
 
         <!-- Vista previa del post -->
-<div v-if="previewMode" class="preview">
-  <h3>Post Preview</h3>
-  <p><strong>Title:</strong> {{ title }}</p>
-  <p><strong>Body:</strong> {{ body }}</p>
-  <p><strong>Publish Date:</strong> {{ publishDate }}</p>
-  <div class="form-buttons">
-    <!-- Mostrar "Edit Post" o "Submit Post" según el estado de edición -->
-    <button @click="submitPost" class="action-button">
-      {{ editingPostId ? 'Edit Post' : 'Submit Post' }}
-    </button>
-    <button @click="cancelPreview" class="action-button">Cancel</button>
-  </div>
-</div>
+        <div v-if="previewMode" class="preview">
+          <h3>Post Preview</h3>
+          <p><strong>Title:</strong> {{ title }}</p>
+          <p><strong>Body:</strong> {{ body }}</p>
+          <p><strong>Publish Date:</strong> {{ publishDate }}</p>
+          <div class="form-buttons">
+            <!-- Mostrar "Edit Post" o "Submit Post" según el estado de edición -->
+            <button @click="submitPost" class="action-button">
+              {{ editingPostId ? 'Edit Post' : 'Submit Post' }}
+            </button>
+            <button @click="cancelPreview" class="action-button">Cancel</button>
+          </div>
+        </div>
       </section>
 
       <!-- Sección de posts -->
       <section class="posts-section">
-  <h2>Your Posts</h2>
-  <ul>
-    <li v-for="post in posts" :key="post.id" class="post-item">
-      <h3>{{ post.title }}</h3>
-      <p class="post-body">{{ post.body }}</p>
-      <p><em>Publish Date: {{ post.publishDate }}</em></p>
-      <div class="post-buttons">
-        <button @click="editPost(post)" class="action-button">Edit</button>
-        <button @click="confirmDeletePost(post)" class="action-button">Delete</button>
-      </div>
-    </li>
-  </ul>
-</section>
-<!-- Modal para Confirmación de Eliminación -->
-<div v-if="showDeleteModal" class="modal">
-  <p>Are you sure you want to delete this post?</p>
-  <div class="modal-buttons">
-    <button @click="deletePost" class="action-button">Yes, Delete</button>
-    <button @click="cancelDelete" class="action-button">Cancel</button>
-  </div>
-</div>
+        <h2>Your Posts</h2>
+        <ul>
+          <li v-for="post in posts" :key="post.id" class="post-item">
+            <h3>{{ post.title }}</h3>
+            <p class="post-body">{{ post.body }}</p>
+            <p><em>Publish Date: {{ post.publishDate }}</em></p>
+            <p><strong>Status:</strong> {{ post.status }}</p>
+            
+            <!-- Mostrar comentarios si existen -->
+            <div v-if="post.comments.length > 0">
+              <h4>Comments:</h4>
+              <ul>
+                <li v-for="comment in post.comments" :key="comment.createdAt">
+                  {{ comment.content }} - <em>{{ comment.createdAt }}</em>
+                </li>
+              </ul>
+            </div>
 
-    <!-- Mensajes de Éxito/Error -->
-    <p v-if="successMessage" class="success">{{ successMessage }}</p>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+            <!-- Mostrar número de likes -->
+            <p><strong>Likes:</strong> {{ post.likes.length }}</p>
+
+            <div class="post-buttons">
+              <button @click="editPost(post)" class="action-button">Edit</button>
+              <button @click="confirmDeletePost(post)" class="action-button">Delete</button>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Modal para Confirmación de Eliminación -->
+      <div v-if="showDeleteModal" class="modal">
+        <p>Are you sure you want to delete this post?</p>
+        <div class="modal-buttons">
+          <button @click="deletePost" class="action-button">Yes, Delete</button>
+          <button @click="cancelDelete" class="action-button">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Mensajes de Éxito/Error -->
+      <p v-if="successMessage" class="success">{{ successMessage }}</p>
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -309,7 +324,7 @@ export default {
   height: auto; 
   cursor: pointer;
   position: relative;
-  top: 40px; 
+  top: 45px; 
   left: 550px;
 }
 /* Barra superior */
@@ -383,7 +398,7 @@ export default {
 .date-picker::-webkit-calendar-picker-indicator {
   filter: invert(1); /* Cambia el color del icono */
 }
-/* Sección de posts */
+ /* Sección de posts */
 .posts-section {
   background: rgba(28, 28, 30, 0.95);
   padding: 40px;
@@ -416,7 +431,6 @@ export default {
   position: relative; /* Aseguramos que sea parte del flujo normal */
   z-index: 25; /* Nos aseguramos que el texto esté por encima del fondo */
 }
-/* Texto dentro del post */
 .post-item h3, .post-item p {
   position: relative;
   z-index: 20; /* Asegura que el texto esté en una capa superior */
