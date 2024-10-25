@@ -63,7 +63,7 @@
           <li v-for="post in posts" :key="post.id" class="post-item">
             <h3>{{ post.title }}</h3>
             <p class="post-body">{{ post.body }}</p>
-            <p><em>Publish Date: {{ post.publishDate }}</em></p>
+            <p><em>Publish Date: {{ formatDate(post.publishDate) }}</em></p>
             <p><strong>Status:</strong> {{ post.status }}</p>
             
             <!-- Mostrar comentarios si existen -->
@@ -125,10 +125,16 @@ export default {
 },
   methods: {
      // Función de cierre de sesión
-     logout() {
-      localStorage.removeItem('userId'); // Limpiar el localStorage
-      this.$router.push('/'); // Redirigir a la página de inicio o login
-    },
+      logout() {
+        localStorage.removeItem('userId'); // Limpiar el localStorage
+        this.$router.push('/'); // Redirigir a la página de inicio o login
+      },
+      formatDate(dateString) {
+        if (!dateString) return 'No date provided'; // Si no hay fecha, muestra este mensaje
+        const date = new Date(dateString); // Convierte la fecha en un objeto Date
+        return date.toLocaleDateString(); // Devuelve la fecha en formato legible
+      },
+
     // Crear y previsualizar el post
     createPost() {
       this.clearErrors();
