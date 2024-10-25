@@ -207,10 +207,10 @@ export default {
   }
 },
 
-    // Listar posts del autor
-    fetchPosts() {
-  const userId = localStorage.getItem('userId');
-  const roleId = localStorage.getItem('roleId');
+  // Listar posts del autor
+  fetchPosts() {
+   const userId = localStorage.getItem('userId');
+   const roleId = localStorage.getItem('roleId');
 
   if (roleId !== "1") { // Si no es autor, mostrar un error o redirigir
     this.errorMessage = "You do not have permission to access this page.";
@@ -308,7 +308,7 @@ export default {
   width: 40px; 
   height: auto; 
   cursor: pointer;
-  position: absolute;
+  position: relative;
   top: 40px; 
   left: 550px;
 }

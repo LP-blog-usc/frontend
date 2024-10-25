@@ -239,7 +239,7 @@ export default {
   width: 40px; 
   height: auto; 
   cursor: pointer;
-  position: absolute;
+  position: relative;
   top: 40px; 
   left: 550px;
 }
