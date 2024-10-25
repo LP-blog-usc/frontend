@@ -4,7 +4,12 @@
     <header class="header">
       <h1>Amigos Net - Author Panel</h1>
     </header>
-
+    <img 
+        src="@/assets/out.png" 
+        alt="Log Out" 
+        class="logout-logo" 
+        @click="logout" 
+      />
     <!-- Contenedor principal que contiene formulario y posts -->
     <div class="main-content">
       <!-- Sección para crear nuevo post -->
@@ -104,6 +109,11 @@ export default {
   };
 },
   methods: {
+     // Función de cierre de sesión
+     logout() {
+      localStorage.removeItem('userId'); // Limpiar el localStorage
+      this.$router.push('/'); // Redirigir a la página de inicio o login
+    },
     // Crear y previsualizar el post
     createPost() {
       this.clearErrors();
@@ -293,6 +303,15 @@ export default {
 </script>
 
 <style scoped>
+/* Estilo del logo de Log Out */
+.logout-logo {
+  width: 40px; 
+  height: auto; 
+  cursor: pointer;
+  position: absolute;
+  top: 40px; 
+  left: 550px;
+}
 /* Barra superior */
 .header {
   background-color: #1c1c1e;

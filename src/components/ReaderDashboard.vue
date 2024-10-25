@@ -1,11 +1,18 @@
 <template>
   <div class="background-container">
+    <!-- Logo de cierre de sesión -->
+    <img 
+        src="@/assets/out.png" 
+        alt="Log Out" 
+        class="logout-logo" 
+        @click="logout" 
+      />
     <!-- Título de la página -->
     <header class="header">
       <h1>Amigos Net - Reader Dashboard</h1>
     </header>
     <head>
-       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     </head>
     <i class="fa fa-heart"></i>
     <div class="posts-section">
@@ -35,11 +42,15 @@ export default {
     };
   },
   methods: {
+    // Función de cierre de sesión
+    logout() {
+      localStorage.removeItem('userId'); // Limpiar el localStorage
+      this.$router.push('/'); // Redirigir a la página de inicio o login
+    },
     // Obtener todos los posts
     fetchPosts() {
       axios.get('http://localhost:5017/api/Posts')
         .then(response => {
-          // Asegurarse de acceder correctamente a los datos en response.data
           if (response.data && response.data.success) {
             this.posts = response.data.data.map(post => ({
               ...post,
@@ -56,31 +67,28 @@ export default {
     // Función para alternar el like de un post
     toggleLike(post) {
       if (post.liked) {
-        this.removeLike(post); // Si ya está "liked", lo eliminamos
+        this.removeLike(post);
       } else {
-        this.addLike(post); // Si no está "liked", lo añadimos
+        this.addLike(post);
       }
     },
     // Añadir un like al post
     addLike(post) {
-      const userId = localStorage.getItem('userId'); // Obtener el userId del usuario autenticado
+      const userId = localStorage.getItem('userId');
       if (!userId) {
         console.error("User not authenticated");
         return;
       }
-
-      // Verificar si el post ya tiene un "like" antes de intentar añadirlo
       if (post.liked) {
         console.log("This post is already liked by this user.");
-        return; // Si ya está marcado como "liked", no se envía la solicitud
+        return;
       }
-
       axios.post('http://localhost:5017/api/Likes', {
         postId: post.id,
-        userId: userId // Usar el userId del localStorage
+        userId: userId
       })
       .then(() => {
-        post.liked = true; // Marcar el post como "liked"
+        post.liked = true;
       })
       .catch(error => {
         console.error('Error liking the post:', error);
@@ -88,28 +96,25 @@ export default {
     },
     // Quitar un like al post
     removeLike(post) {
-      const userId = localStorage.getItem('userId'); // Obtener el userId del usuario autenticado
+      const userId = localStorage.getItem('userId');
       if (!userId) {
         console.error("User not authenticated");
         return;
       }
-
-      // Verificar si el post tiene un "like" antes de intentar eliminarlo
       if (!post.liked) {
         console.log("This post is not liked by this user.");
-        return; // Si no está marcado como "liked", no se envía la solicitud
+        return;
       }
-
       axios({
         method: 'delete',
         url: 'http://localhost:5017/api/Likes',
         data: {
           postId: post.id,
-          userId: userId // Usar el userId del localStorage
+          userId: userId
         }
       })
       .then(() => {
-        post.liked = false; // Desmarcar el post como "liked"
+        post.liked = false;
       })
       .catch(error => {
         console.error('Error removing the like:', error);
@@ -117,13 +122,23 @@ export default {
     },
   },
   mounted() {
-    this.fetchPosts(); // Cargar los posts cuando el componente se monte
+    this.fetchPosts();
   }
 };
 </script>
 
 <style scoped>
-/* Barra superior */
+/* Estilo del logo de Log Out */
+.logout-logo {
+  width: 40px; 
+  height: auto; 
+  cursor: pointer;
+  position: absolute;
+  top: 40px; 
+  left: 550px;
+}
+
+/* Resto de tus estilos... */
 .header {
   background-color: #1c1c1e;
   padding: 1.5rem;
@@ -192,9 +207,8 @@ export default {
 
 /* Estilo del título del post */
 h3.post-title {
-  color: #f39c12 !important; /* Forzamos el color naranja */
+  color: #f39c12 !important;
   z-index: 20;
-  
 }
 
 /* Estilo del botón de like */
@@ -213,7 +227,7 @@ h3.post-title {
 }
 
 .like-button .fa-heart.liked {
-  color: red; /* Corazón rojo cuando está likeado */
+  color: red;
 }
 
 .post-item p {
