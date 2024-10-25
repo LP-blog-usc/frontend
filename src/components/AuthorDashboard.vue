@@ -45,7 +45,7 @@
           <h3>Post Preview</h3>
           <p><strong>Title:</strong> {{ title }}</p>
           <p><strong>Body:</strong> {{ body }}</p>
-          <p><strong>Publish Date:</strong> {{ publishDate }}</p>
+          <p><strong>Publish Date:</strong> {{ publishDate ? new Date(publishDate).toLocaleDateString() : 'No date provided' }}</p>
           <div class="form-buttons">
             <!-- Mostrar "Edit Post" o "Submit Post" según el estado de edición -->
             <button @click="submitPost" class="action-button">
@@ -63,7 +63,7 @@
           <li v-for="post in posts" :key="post.id" class="post-item">
             <h3>{{ post.title }}</h3>
             <p class="post-body">{{ post.body }}</p>
-            <p><em>Publish Date: {{ formatDate(post.publishDate) }}</em></p>
+            <p><strong>Publish Date:</strong> {{ publishDate ? new Date(publishDate).toLocaleDateString() : 'No date provided' }}</p>
             <p><strong>Status:</strong> {{ post.status }}</p>
             
             <!-- Mostrar comentarios si existen -->
@@ -129,10 +129,9 @@ export default {
         localStorage.removeItem('userId'); // Limpiar el localStorage
         this.$router.push('/'); // Redirigir a la página de inicio o login
       },
-      formatDate(dateString) {
-        if (!dateString) return 'No date provided'; // Si no hay fecha, muestra este mensaje
-        const date = new Date(dateString); // Convierte la fecha en un objeto Date
-        return date.toLocaleDateString(); // Devuelve la fecha en formato legible
+      formatDate(date) {
+        if (!date) return 'No date available'; // Maneja el caso en que no haya fecha
+        return new Date(date).toLocaleDateString(); // Formatea la fecha en formato local
       },
 
     // Crear y previsualizar el post
