@@ -11,16 +11,34 @@
     <header class="header">
       <h1>Amigos Net - Reader Dashboard</h1>
     </header>
-    <head>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    </head>
     <div class="posts-section">
       <h2>Posts</h2>
       <ul>
         <li v-for="post in posts" :key="post.id" class="post-item">
+          <!-- Título del post -->
           <h3 class="post-title">{{ post.title }}</h3>
+          <!-- Cuerpo del post -->
           <p class="post-body">{{ post.body }}</p>
+          <!-- Autor del post -->
           <p><em>Author: {{ post.authorName }}</em></p>
+          <!-- Fecha de actualización del post -->
+          <p><em>Updated at: {{ post.updatedAt }}</em></p>
+
+          <!-- Mostrar estado del post -->
+          <p><strong>Status:</strong> {{ post.status }}</p>
+
+          <!-- Mostrar comentarios si existen -->
+          <div v-if="post.comments.length > 0">
+            <h4>Comments:</h4>
+            <ul>
+              <li v-for="comment in post.comments" :key="comment.createdAt">
+                {{ comment.content }} - <em>{{ comment.createdAt }}</em>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Mostrar número de likes -->
+          <p><strong>Likes:</strong> {{ post.likes.length }}</p>
         </li>
       </ul>
     </div>
@@ -122,20 +140,21 @@ export default {
 
 /* Cada post en la lista */
 .post-item {
-  background: rgba(28, 28, 30, 0.85);
+  background: rgba(40, 40, 40, 0.9); /* Cambié el color de fondo a más sólido */
   margin-bottom: 30px;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
   position: relative;
   z-index: 20;
+  color: #fff; /* Asegurarse de que el texto sea blanco para que sea legible */
 }
 
 /* Estilo del cuerpo del post */
 .post-body {
   white-space: pre-wrap;
   word-wrap: break-word;
-  color: #fff;
+  color: #f0f0f0;
   margin-bottom: 10px;
   position: relative;
   z-index: 25;
@@ -150,7 +169,11 @@ h3.post-title {
 .post-item p {
   position: relative;
   z-index: 20;
-  color: #fff;
+  color: #ddd; /* Hacer el texto un poco más claro */
+}
+
+.post-item h4 {
+  color: #f39c12; /* Color para los títulos de comentarios */
 }
 
 /* Estilo del título de la sección de posts */
@@ -158,5 +181,16 @@ h2 {
   z-index: 20;
   position: relative;
   color: #f39c12;
+}
+
+/* Ajustes para mejorar visibilidad */
+ul {
+  padding-left: 20px;
+}
+
+li {
+  list-style: disc;
+  margin-bottom: 10px;
+  color: #fff;
 }
 </style>
